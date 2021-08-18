@@ -28,7 +28,7 @@ Linux:
       with:
         ipopt-libs: true
 
-    - name: Octave ${{ env.OCTAVE_VER }} Installed
+    - name: Octave ${{ env.ML_VER }} Installed
       run: $ML_CMD ver
 
     - name: Install IPOPT interface for Octave
@@ -47,7 +47,7 @@ macOS:
     - name: Install Octave (macOS)
       uses: MATPOWER/action-install-octave-macos@v1
 
-    - name: Octave ${{ env.OCTAVE_VER }} Installed
+    - name: Octave ${{ env.ML_VER }} Installed
       run: $ML_CMD ver
     
     - name: Cache IPOPT Libs (macOS)

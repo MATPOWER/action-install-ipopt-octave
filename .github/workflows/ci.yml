@@ -29,7 +29,7 @@ jobs:
       if: startsWith(matrix.os, 'macos')
       uses: MATPOWER/action-install-octave-macos@v1
 
-    - name: Octave ${{ env.OCTAVE_VER }} Installed
+    - name: Octave ${{ env.ML_VER }} Installed
       run: $ML_CMD ver
     
     - name: Cache IPOPT Libs (macOS)
