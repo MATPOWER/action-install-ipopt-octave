@@ -1,0 +1,55 @@
+name: CI
+
+# controls when action will run
+on:
+  # triggers workflow on push events
+  push:
+  # allows workflow to be triggered manually from Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest, macos-10.15, macos-11, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Install Octave (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      uses: MATPOWER/action-install-octave-linux@v1
+      with:
+        ipopt-libs: true
+
+    - name: Install Octave (macOS)
+      if: startsWith(matrix.os, 'macos')
+      uses: MATPOWER/action-install-octave-macos@v1
+
+    - name: Octave ${{ env.OCTAVE_VER }} Installed
+      run: $ML_CMD ver
+    
+    - name: Cache IPOPT Libs (macOS)
+      if: startsWith(matrix.os, 'macos')
+      id: cache-ipopt-libs
+      uses: actions/cache@v2
+      with:
+        path: ~/install
+        key: ${{ matrix.os }}-ipopt-libs
+
+    - name: Build IPOPT (macOS)
+      if: startsWith(matrix.os, 'macos') && steps.cache-ipopt-libs.outputs.cache-hit != 'true'
+      uses: MATPOWER/action-build-ipopt-macos@v1
+
+    - name: Install IPOPT interface for Octave
+      uses: ./.
+
+    - name: Test IPOPT availability, print version number
+      run:  |
+        export IPOPT_TEST_PATH=${GITHUB_WORKSPACE}/.github/ipopt
+        env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "if ~have_feature_ipopt(), exit(1); end"
+        env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "qps_ipopt([],[1; 1],[1 1],[2],[2],[1; 1],[1; 1],[1; 1],struct('verbose', 2));"
+        ls -al $IPOPT_PATH
