@@ -2,6 +2,12 @@ name: 'Install IPOPT (Octave)'
 description: 'Build and install Octave interface for IPOPT'
 author: 'Ray Zimmerman'
 
+inputs:
+  cached:
+    description: 'true means installing from a cached build'
+    required: false
+    default: false
+
 runs:
   using: "composite"
   steps:
@@ -10,18 +16,22 @@ runs:
       env:
         IPOPT_VER: 3.11.9
       run: |
-        echo "IPOPT_PATH=$HOME/build/ipopt" >> $GITHUB_ENV
-        [ ! -d $HOME/build ] && mkdir -p $HOME/build
-        export PKG_CONFIG_PATH=$HOME/install/lib/pkgconfig
-        curl -SL https://github.com/coin-or/Ipopt/archive/releases/${IPOPT_VER}.tar.gz | tar -xzC $HOME/build
-        mv $HOME/build/Ipopt-releases-${IPOPT_VER}/Ipopt/contrib/MatlabInterface $HOME/build/ipopt
-        mv ${{ github.action_path }}/ipopt/Makefile $HOME/build/ipopt/src
-        make -C $HOME/build/ipopt/src
-        mv $HOME/build/ipopt/src/*.mex $HOME/build/ipopt/
+        export IPOPT_PATH=$HOME/build/ipopt
+        ${{ inputs.cached }} && echo "cached - skip build" || echo "Not cached - build it"
+        ! ${{ inputs.cached }} && [ ! -d $HOME/build ] && mkdir -p $HOME/build
+        ! ${{ inputs.cached }} && export PKG_CONFIG_PATH=$HOME/install/lib/pkgconfig
+        ! ${{ inputs.cached }} && curl -SL https://github.com/coin-or/Ipopt/archive/releases/${IPOPT_VER}.tar.gz | tar -xzC $HOME/build
+        ! ${{ inputs.cached }} && mv $HOME/build/Ipopt-releases-${IPOPT_VER}/Ipopt/contrib/MatlabInterface $HOME/build/ipopt
+        ! ${{ inputs.cached }} && mv ${{ github.action_path }}/ipopt/Makefile $HOME/build/ipopt/src
+        ! ${{ inputs.cached }} && make -C $HOME/build/ipopt/src
+        ! ${{ inputs.cached }} && mv $HOME/build/ipopt/src/*.mex $HOME/build/ipopt/
+        echo "IPOPT_PATH=${IPOPT_PATH}" >> $GITHUB_ENV
       shell: bash
 
     - name: Install IPOPT Octave interface
-      run: $ML_CMD "addpath('${IPOPT_PATH}'); savepath"
+      run: |
+        echo "$ML_CMD \"addpath('${IPOPT_PATH}'); savepath\""
+        $ML_CMD "addpath('${IPOPT_PATH}'); savepath"
       shell: bash
 
 branding:

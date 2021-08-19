@@ -14,7 +14,13 @@ __Note:__ This action depends on [Octave][2] being installed first, using either
 
 Tested on Linux and macOS runners.
 
-### Inputs / Outputs
+### Optional Input
+
+- `cached` - (default `false`) set to `true` to indicate that you are
+  installing from a cached build, i.e. skip the building and just define
+  `IPOPT_PATH` and install it in the Octave path.
+
+### Outputs
 
 None.
 
@@ -31,11 +37,22 @@ Linux:
     - name: Octave ${{ env.ML_VER }} Installed
       run: $ML_CMD ver
 
+    - name: Cache IPOPT interface for Octave
+      id: cache-ipopt
+      env:
+        cache-name: ipopt
+      uses: actions/cache@v2
+      with:
+        path: ~/build/ipopt
+        key: ${{ matrix.os }}-${{ env.cache-name }}
+
     - name: Install IPOPT interface for Octave
       uses: MATPOWER/action-install-ipopt-octave@v1
+      with:
+        cached: ${{ steps.cache-ipopt.outputs.cache-hit == 'true' }}
 
     - name: Run IPOPT code in Octave
-      run:  |
+      run: |
         export IPOPT_TEST_PATH=<directory-with-code-that-calls-IPOPT>
         env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "<code-that-calls-IPOPT>"
         ls -al $IPOPT_PATH
@@ -52,17 +69,30 @@ macOS:
     
     - name: Cache IPOPT Libs (macOS)
       id: cache-ipopt-libs
+      env:
+        cache-name: ipopt-libs
       uses: actions/cache@v2
       with:
         path: ~/install
-        key: ${{ matrix.os }}-ipopt-libs
+        key: ${{ matrix.os }}-${{ env.cache-name }}
 
     - name: Build IPOPT (macOS)
       if: steps.cache-ipopt-libs.outputs.cache-hit != 'true'
       uses: MATPOWER/action-build-ipopt-macos@v1
 
+    - name: Cache IPOPT interface for Octave
+      id: cache-ipopt
+      env:
+        cache-name: ipopt
+      uses: actions/cache@v2
+      with:
+        path: ~/build/ipopt
+        key: ${{ matrix.os }}-${{ env.cache-name }}
+
     - name: Install IPOPT interface for Octave
       uses: MATPOWER/action-install-ipopt-octave@v1
+      with:
+        cached: ${{ steps.cache-ipopt.outputs.cache-hit == 'true' }}
 
     - name: Run IPOPT code in Octave
       run:  |

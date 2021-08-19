@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest, macos-10.15, macos-11, macos-latest]
 
@@ -35,10 +36,12 @@ jobs:
     - name: Cache IPOPT Libs (macOS)
       if: startsWith(matrix.os, 'macos')
       id: cache-ipopt-libs
+      env:
+        cache-name: ipopt-libs
       uses: actions/cache@v2
       with:
         path: ~/install
-        key: ${{ matrix.os }}-ipopt-libs
+        key: ${{ matrix.os }}-${{ env.cache-name }}
 
     - name: Build IPOPT (macOS)
       if: startsWith(matrix.os, 'macos') && steps.cache-ipopt-libs.outputs.cache-hit != 'true'
