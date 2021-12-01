@@ -20,19 +20,6 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
 
-    - name: Install Octave (Linux)
-      if: startsWith(matrix.os, 'ubuntu')
-      uses: MATPOWER/action-install-octave-linux@v1
-      with:
-        ipopt-libs: true
-
-    - name: Install Octave (macOS)
-      if: startsWith(matrix.os, 'macos')
-      uses: MATPOWER/action-install-octave-macos@v1
-
-    - name: Octave ${{ env.ML_VER }} Installed
-      run: $ML_CMD ver
-    
     - name: Cache IPOPT Libs (macOS)
       if: startsWith(matrix.os, 'macos')
       id: cache-ipopt-libs
@@ -47,6 +34,19 @@ jobs:
       if: startsWith(matrix.os, 'macos') && steps.cache-ipopt-libs.outputs.cache-hit != 'true'
       uses: MATPOWER/action-build-ipopt-macos@v1
 
+    - name: Install Octave (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      uses: MATPOWER/action-install-octave-linux@v1
+      with:
+        ipopt-libs: true
+
+    - name: Install Octave (macOS)
+      if: startsWith(matrix.os, 'macos')
+      uses: MATPOWER/action-install-octave-macos@v1
+
+    - name: Octave ${{ env.ML_VER }} Installed
+      run: $ML_CMD ver
+    
     - name: Install IPOPT interface for Octave
       uses: ./.
 
