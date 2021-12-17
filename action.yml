@@ -14,19 +14,25 @@ runs:
     # expects that Octave and IPOPT libraries have already been installed
     - name: Build IPOPT Octave interface
       env:
-        IPOPT_VER: 3.11.9
+        MEXIPOPT_BRANCH: no-bin
       run: |
         export IPOPT_PATH=$HOME/build/ipopt
         ${{ inputs.cached }} && echo "cached - skip build" || echo "Not cached - build it"
         ! ${{ inputs.cached }} && [ ! -d $HOME/build ] && mkdir -p $HOME/build
+        ! ${{ inputs.cached }} && mkdir -p $HOME/build/ipopt
+        ! ${{ inputs.cached }} && git clone -b ${MEXIPOPT_BRANCH} --depth=1 https://github.com/rdzman/mexIPOPT.git $HOME/build/mexIPOPT
+        ! ${{ inputs.cached }} && cd $HOME/build/mexIPOPT/toolbox
         ! ${{ inputs.cached }} && export PKG_CONFIG_PATH=$HOME/install/lib/pkgconfig
-        ! ${{ inputs.cached }} && curl -SL https://github.com/coin-or/Ipopt/archive/releases/${IPOPT_VER}.tar.gz | tar -xzC $HOME/build
-        ! ${{ inputs.cached }} && mv $HOME/build/Ipopt-releases-${IPOPT_VER}/Ipopt/contrib/MatlabInterface $HOME/build/ipopt
-        ! ${{ inputs.cached }} && mv ${{ github.action_path }}/ipopt/Makefile $HOME/build/ipopt/src
-        ! ${{ inputs.cached }} && make -C $HOME/build/ipopt/src
-        ! ${{ inputs.cached }} && mv $HOME/build/ipopt/src/*.mex $HOME/build/ipopt/
+        ! ${{ inputs.cached }} && [ ! -d $HOME/build/mexIPOPT/toolbox/bin ] && mkdir -p $HOME/build/mexIPOPT/toolbox/bin
+        ! ${{ inputs.cached }} && octave-cli --no-gui --eval "CompileIpoptMexLib"
+        ! ${{ inputs.cached }} && ls -al $HOME/build/mexIPOPT/toolbox/bin
+        ! ${{ inputs.cached }} && mv $HOME/build/mexIPOPT/toolbox/bin/ipopt_oct.mex $HOME/build/ipopt/ipopt.mex
         echo "IPOPT_PATH=${IPOPT_PATH}" >> $GITHUB_ENV
       shell: bash
+#         ! ${{ inputs.cached }} && ls -al $HOME/build/mexIPOPT/toolbox/lib
+#         ! ${{ inputs.cached }} && mkoctfile -p OCTINCLUDEDIR
+#         ! ${{ inputs.cached }} && pkg-config --cflags ipopt
+#         ! ${{ inputs.cached }} && pkg-config --libs ipopt
 
     - name: Install IPOPT Octave interface
       run: |
