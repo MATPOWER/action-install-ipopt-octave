@@ -26,6 +26,7 @@ runs:
         ! ${{ inputs.cached }} && [ ! -d $HOME/build/mexIPOPT/toolbox/bin ] && mkdir -p $HOME/build/mexIPOPT/toolbox/bin
         ! ${{ inputs.cached }} && octave-cli --no-gui --eval "CompileIpoptMexLib"
         ! ${{ inputs.cached }} && ls -al $HOME/build/mexIPOPT/toolbox/bin
+        ! ${{ inputs.cached }} && mv $HOME/build/mexIPOPT/toolbox/lib/ipopt_auxdata.m $HOME/build/ipopt/
         ! ${{ inputs.cached }} && mv $HOME/build/mexIPOPT/toolbox/bin/ipopt_oct.mex $HOME/build/ipopt/ipopt.mex
         echo "IPOPT_PATH=${IPOPT_PATH}" >> $GITHUB_ENV
       shell: bash
