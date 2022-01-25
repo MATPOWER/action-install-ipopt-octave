@@ -54,5 +54,6 @@ jobs:
       run:  |
         export IPOPT_TEST_PATH=${GITHUB_WORKSPACE}/.github/ipopt
         env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "if ~have_feature_ipopt(), exit(1); end"
+        env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "if ~exist('ipopt_auxdata'), exit(1); end"
         env $ML_PATHVAR=$IPOPT_TEST_PATH $ML_CMD "qps_ipopt([],[1; 1],[1 1],[2],[2],[1; 1],[1; 1],[1; 1],struct('verbose', 2));"
         ls -al $IPOPT_PATH
