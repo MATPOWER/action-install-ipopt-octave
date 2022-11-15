@@ -41,7 +41,7 @@ Linux:
       id: cache-ipopt
       env:
         cache-name: ipopt
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/build/ipopt
         key: ${{ matrix.os }}-${{ env.cache-name }}
@@ -71,7 +71,7 @@ macOS:
       id: cache-ipopt-libs
       env:
         cache-name: ipopt-libs
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/install
         key: ${{ matrix.os }}-${{ env.cache-name }}
@@ -84,7 +84,7 @@ macOS:
       id: cache-ipopt
       env:
         cache-name: ipopt
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/build/ipopt
         key: ${{ matrix.os }}-${{ env.cache-name }}
