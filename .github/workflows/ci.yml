@@ -18,14 +18,14 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Cache IPOPT Libs (macOS)
       if: startsWith(matrix.os, 'macos')
       id: cache-ipopt-libs
       env:
         cache-name: ipopt-libs
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/install
         key: ${{ matrix.os }}-${{ env.cache-name }}
